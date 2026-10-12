@@ -23,14 +23,17 @@ jobs:
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    # Step 3: Deploy the files to the VPS
+    # Step 3: Deploy files to the VPS
     - name: Deploy files
       run: |
-        ssh-keyscan -p "${{ secrets.VPS_SSH_PORT }}" -H "${{ secrets.VPS_HOSTNAME }}" >> ~/.ssh/known_hosts
-        rsync -e "ssh -p ${{ secrets.VPS_SSH_PORT }}" -avz --delete ./ ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOSTNAME }}:${{ secrets.PATH_TO_FOLDER }}
-
-
-    # Step 4: Restart Nginx
-    - name: Restart Nginx
+        echo "Deploying..."
+        rsync -rvz --delete --chmod=D2750,F640 \
+          --exclude '.git*' \
+          -e "ssh -p ${{ secrets.VPS_SSH_PORT }}" \
+          ./ ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOSTNAME }}:./
+        echo "Deploy finished"
+ 
+    - name: Verify site
       run: |
-        ssh -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOSTNAME }} "sudo /bin/systemctl restart nginx"
+        curl -fsS https://usa-trip.klescinec.eu > /dev/null
+        echo "Site is up"
