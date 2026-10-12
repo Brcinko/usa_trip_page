@@ -1,0 +1,37 @@
+name: Deploy to VPS
+
+# Trigger workflow on push to the main branch
+on:
+  push:
+    branches:
+      - master
+
+# Define the deployment job
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Run on the latest Ubuntu runner
+
+    steps:
+    # Step 1: Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Set up SSH
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    # Step 3: Deploy the files to the VPS
+    - name: Deploy files
+      run: |
+        ssh-keyscan -p "${{ secrets.VPS_SSH_PORT }}" -H "${{ secrets.VPS_HOSTNAME }}" >> ~/.ssh/known_hosts
+        ssh -vvv -p "${{ secrets.VPS_SSH_PORT }}" "${{ secrets.VPS_USERNAME }}"@"${{ secrets.VPS_HOSTNAME }}" echo "SSH Connection Successful"
+        rsync -e "ssh -p ${{ secrets.VPS_SSH_PORT }}" -avz --delete ./ ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOSTNAME }}:${{ secrets.PATH_TO_FOLDER }}
+
+
+    # Step 4: Restart Nginx
+    - name: Restart Nginx
+      run: |
+        ssh -p ${{ secrets.VPS_SSH_PORT }} ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOSTNAME }} "sudo /bin/systemctl restart nginx"
