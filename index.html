@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Západ USA 2027 — 22 dní, trasa a nocľahy</title>
+<title>Západ USA 2027 — finálny plán</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -9,6 +9,7 @@
   :root{
     --asphalt:#23262b; --paper:#f3ede1; --line:#c9bda6;
     --rust:#a4432a; --sage:#4f6b52; --amber:#b8860b; --ink:#1b1d21;
+    --mv:#7a5230;
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0}
@@ -29,9 +30,15 @@
   .sw{width:11px;height:11px;border-radius:50%;flex:0 0 11px;margin-top:5px}
   .sw.ln{height:3px;width:16px;border-radius:2px;flex:0 0 16px;margin-top:9px}
 
+  .variant{margin:9px -18px -11px;padding:10px 18px;background:#eae1cf;border-top:1px solid var(--line)}
+  .variant .toggle{font-weight:650;color:#6b4826}
+  .variant input{accent-color:var(--mv)}
+  .variant .hint{font-size:11.5px;color:#7a7263;line-height:1.4;margin:3px 0 0 24px}
+
   #days{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 0 24px}
   .day{display:flex;gap:10px;padding:9px 18px;cursor:pointer;border-left:3px solid transparent;align-items:flex-start}
   .day:hover{background:#e9e1d1;border-left-color:var(--rust)}
+  .day.alt{background:#f4ead6;border-left-color:var(--mv)}
   .day .n{flex:0 0 54px;font-size:11.5px;font-weight:700;color:#8b8371;padding-top:2px;line-height:1.3;overflow-wrap:anywhere}
   .day .b{flex:1 1 auto;min-width:0;overflow-wrap:anywhere;word-break:break-word}
   .day .t{font-size:13.5px;font-weight:600;line-height:1.3}
@@ -48,11 +55,13 @@
   .night{background:var(--rust);color:#fff;border:2px solid #fff;border-radius:50%;
     width:24px;height:24px;display:flex;align-items:center;justify-content:center;
     font-size:11px;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .night.mv{background:var(--mv)}
   .park-pin{background:var(--sage);border:2px solid #fff;border-radius:3px;width:14px;height:14px;
     box-shadow:0 1px 3px rgba(0,0,0,.35)}
   .sight-pin{background:var(--amber);border:2px solid #fff;border-radius:50%;width:11px;height:11px;
     box-shadow:0 1px 3px rgba(0,0,0,.35)}
-  .gump-pin{background:var(--rust);color:#fff;border:1.5px solid #fff;border-radius:50%;
+  .sight-pin.mv{background:var(--mv)}
+  .gump-pin{background:var(--mv);color:#fff;border:1.5px solid #fff;border-radius:50%;
     width:14px;height:14px;display:flex;align-items:center;justify-content:center;
     font-size:9px;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.45)}
 
@@ -60,13 +69,14 @@
     font-weight:600;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 5px #fff,0 0 7px #fff}
   .leaflet-tooltip.lbl:before{display:none}
   .l-night{color:#7d3220;font-size:12px}
+  .l-mv{color:#6b4826;font-size:12px;font-weight:700}
   .l-park{color:#33502f;font-size:11.5px}
   .l-sight{color:#8a6508;font-size:11px}
-  .l-gump{color:var(--rust);font-size:11.5px;font-weight:700}
 
   .leaflet-tooltip.leg-badge{background:#d08b76;color:#fff;border:1.5px solid #fff;border-radius:8px;
     padding:3px 8px;font-family:inherit;font-size:11px;font-weight:650;line-height:1.25;
     text-align:center;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.22);text-shadow:none}
+  .leaflet-tooltip.leg-badge.mv{background:#8a6243}
   .leaflet-tooltip.leg-badge .dist{display:block;font-size:10px;font-weight:600;opacity:.92}
   .leaflet-tooltip.leg-badge:before{display:none}
 
@@ -89,6 +99,7 @@
     #panel h1{font-size:16px}
     .day{padding:8px 14px}
     .controls{padding:10px 14px}
+    .variant{margin:9px -14px -10px;padding:10px 14px}
     #panel header{padding:13px 14px 11px}
   }
 </style>
@@ -96,7 +107,7 @@
 <div id="panel">
   <header>
     <h1>Západ USA — 27. 5. až 17. 6. 2027</h1>
-    <p>22 dní, 21 nocí. San Francisco → Yosemite → Idaho → Yellowstone → Utah → Monument Valley → Grand Canyon → Las Vegas → Los Angeles.</p>
+    <p>22 dní, 21 nocí. Bryce ako vyhliadka cestou, Zion na dve noci, Las Vegas na dve noci.</p>
     <p id="total"></p>
   </header>
 
@@ -105,9 +116,14 @@
     <label class="toggle"><input type="checkbox" id="t-legs" checked><span class="sw" style="background:#d08b76"></span>Čas a vzdialenosť na trase</label>
     <label class="toggle"><input type="checkbox" id="t-parks" checked><span class="sw" style="background:var(--sage)"></span>Národné parky</label>
     <label class="toggle"><input type="checkbox" id="t-sights" checked><span class="sw" style="background:var(--amber)"></span>Zastávky po ceste</label>
-    <label class="toggle"><input type="checkbox" id="t-r66" checked><span class="sw ln" style="background:#9a958c"></span>Route 66 (orientačne)</label>
+    <label class="toggle"><input type="checkbox" id="t-r66" checked><span class="sw ln" style="background:#55504a"></span>Route 66 (orientačne)</label>
     <label class="toggle"><input type="checkbox" id="t-states" checked><span class="sw" style="background:#7b7360"></span>Skratky štátov</label>
     <label class="toggle"><input type="checkbox" id="t-labels" checked><span class="sw" style="background:#8b8371"></span>Názvy v mape</label>
+
+    <div class="variant">
+      <label class="toggle"><input type="checkbox" id="t-mv"><span class="sw ln" style="background:var(--mv)"></span>Variant s Monument Valley</label>
+      <div class="hint">Pridá noc v Monument Valley a Forrest Gump Point. Las Vegas potom má len jednu noc.</div>
+    </div>
   </div>
 
   <div id="days"></div>
@@ -116,34 +132,35 @@
 <div id="map"></div>
 
 <script>
-/* ---------- nocľahy ---------- */
+/* ================= dáta ================= */
+
 const NIGHTS = [
-  {dates:"27.–30. 5.", name:"San Francisco",        lat:37.7749, lng:-122.4194, n:3, note:"Prílet 27. 5. o 17:40, odchod ráno 30. 5."},
-  {dates:"30. 5.–2. 6.", name:"Oakhurst (Yosemite)", lat:37.3272, lng:-119.6479, n:3, note:"Rezervované. Do Yosemite Valley ~1 h."},
-  {dates:"2.–3. 6.",  name:"Reno, NV",             lat:39.5296, lng:-119.8138, n:1, note:"Po prejazde Tioga Road a Mono Lake"},
-  {dates:"3.–4. 6.",  name:"Twin Falls, ID",       lat:42.5558, lng:-114.4701, n:1, note:"Shoshone Falls hneď pri meste"},
-  {dates:"4.–7. 6.",  name:"West Yellowstone",     lat:44.6621, lng:-111.1041, n:3, note:"Ideálne nahradiť ubytovaním v parku (Canyon Village) — rezervácia 13 mesiacov vopred"},
-  {dates:"7.–8. 6.",  name:"Jackson, WY",          lat:43.4799, lng:-110.7624, n:1, note:"Po prejazde celým Grand Tetonom"},
-  {dates:"8.–9. 6.",  name:"Salt Lake City",       lat:40.7608, lng:-111.8910, n:1, note:"Jediná noc v SLC"},
-  {dates:"9.–10. 6.", name:"Bryce Canyon City",    lat:37.6716, lng:-112.1568, n:1, note:"Pár minút od vstupu do parku"},
-  {dates:"10.–11. 6.",name:"Springdale (Zion)",    lat:37.1889, lng:-112.9983, n:1, note:"Pri južnom vstupe do Zionu"},
-  {dates:"11.–12. 6.",name:"Page, AZ",             lat:36.9147, lng:-111.4558, n:1, note:"Antelope Canyon a Horseshoe Bend"},
-  {dates:"12.–13. 6.",name:"Grand Canyon Village", lat:36.0544, lng:-112.1401, n:1, note:"South Rim — rezervovať veľmi vopred"},
-  {dates:"13.–15. 6.",name:"Las Vegas",            lat:36.1699, lng:-115.1398, n:2, note:""},
-  {dates:"15.–17. 6.",name:"Los Angeles",          lat:34.0522, lng:-118.2437, n:2, note:"17. 6. odlet z LAX o 20:55"}
+  {dates:"27.–30. 5.",   name:"San Francisco",        lat:37.7749, lng:-122.4194, n:3, note:"Prílet 27. 5. o 17:40, odchod ráno 30. 5."},
+  {dates:"30. 5.–2. 6.", name:"Oakhurst (Yosemite)",  lat:37.3272, lng:-119.6479, n:3, note:"Rezervované. Do Yosemite Valley ~1 h."},
+  {dates:"2.–3. 6.",     name:"Reno, NV",             lat:39.5296, lng:-119.8138, n:1, note:"Po prejazde Tioga Road a Mono Lake"},
+  {dates:"3.–4. 6.",     name:"Twin Falls, ID",       lat:42.5558, lng:-114.4701, n:1, note:"Shoshone Falls hneď pri meste"},
+  {dates:"4.–7. 6.",     name:"West Yellowstone",     lat:44.6621, lng:-111.1041, n:3, note:"Ideálne nahradiť ubytovaním v parku (Canyon Village) — rezervácia 13 mesiacov vopred"},
+  {dates:"7.–8. 6.",     name:"Jackson, WY",          lat:43.4799, lng:-110.7624, n:1, note:"Po prejazde celým Grand Tetonom"},
+  {dates:"8.–9. 6.",     name:"Salt Lake City",       lat:40.7608, lng:-111.8910, n:1, note:"Jediná noc v SLC"},
+  {dates:"9.–11. 6.",    name:"Springdale (Zion)",    lat:37.1889, lng:-112.9983, n:2, note:"Dve noci — 10. 6. celý deň v Zione"},
+  {dates:"11.–12. 6.",   name:"Page, AZ",             lat:36.9147, lng:-111.4558, n:1, note:"Antelope Canyon a Horseshoe Bend"},
+  {dates:"12.–13. 6.",   name:"Grand Canyon Village", lat:36.0544, lng:-112.1401, n:1, note:"South Rim — rezervovať veľmi vopred"},
+  {dates:"13.–15. 6.",   name:"Las Vegas",            lat:36.1699, lng:-115.1398, n:2, note:"", vegas:true},
+  {dates:"15.–17. 6.",   name:"Los Angeles",          lat:34.0522, lng:-118.2437, n:2, note:"17. 6. odlet z LAX o 20:55"}
 ];
 
-/* ---------- parky ---------- */
+const MV_NIGHT = {dates:"12.–13. 6.", name:"Monument Valley", lat:36.9830, lng:-110.1130, n:1,
+  note:"The View alebo Goulding's — rezervácia rok vopred. Kmeňový park Navajov, vstup sa platí zvlášť, annual pass neplatí."};
+
 const PARKS = [
   {name:"Yosemite NP",     lat:37.8651, lng:-119.5383, d:"31. 5. – 1. 6."},
   {name:"Yellowstone NP",  lat:44.6000, lng:-110.5000, d:"4.–7. 6."},
   {name:"Grand Teton NP",  lat:43.7904, lng:-110.6818, d:"7. 6. — prejazdový deň"},
-  {name:"Bryce Canyon NP", lat:37.5930, lng:-112.1871, d:"9.–10. 6."},
-  {name:"Zion NP",         lat:37.2982, lng:-113.0263, d:"10.–11. 6."},
+  {name:"Bryce Canyon NP", lat:37.5930, lng:-112.1871, d:"9. 6. — len vyhliadky, bez nocľahu"},
+  {name:"Zion NP",         lat:37.2982, lng:-113.0263, d:"9.–11. 6. — dve noci"},
   {name:"Grand Canyon NP", lat:36.0600, lng:-112.1400, d:"12.–13. 6."}
 ];
 
-/* ---------- zastávky ---------- */
 const SIGHTS = [
   {name:"Tunnel View",          lat:37.7156, lng:-119.6773, d:"31. 5."},
   {name:"Glacier Point",        lat:37.7275, lng:-119.5742, d:"1. 6."},
@@ -157,56 +174,71 @@ const SIGHTS = [
   {name:"Lamar Valley",         lat:44.8975, lng:-110.2200, d:"6. 6. — zvieratá za úsvitu"},
   {name:"Jenny Lake",           lat:43.7522, lng:-110.7266, d:"7. 6."},
   {name:"Mormon Row",           lat:43.6650, lng:-110.6630, d:"7.–8. 6."},
-  {name:"Horseshoe Bend",       lat:36.8791, lng:-111.5104, d:"11. 6. — platené parkovanie"},
+  {name:"Bryce Point",          lat:37.6043, lng:-112.1570, d:"9. 6. — krátka zastávka"},
+  {name:"Sunset Point (Bryce)", lat:37.6283, lng:-112.1660, d:"9. 6."},
+  {name:"Zion Canyon Scenic Drive", lat:37.2570, lng:-112.9480, d:"10. 6."},
+  {name:"The Narrows",          lat:37.2850, lng:-112.9470, d:"10. 6."},
   {name:"Antelope Canyon",      lat:36.8619, lng:-111.3743, d:"11. 6. — len s navajo sprievodcom"},
-  {name:"Monument Valley",      lat:36.9830, lng:-110.1130, d:"12. 6. — kmeňový park, vstup zvlášť"},
+  {name:"Horseshoe Bend",       lat:36.8791, lng:-111.5104, d:"11. 6. — na západ slnka"},
   {name:"Desert View Watchtower",lat:36.0416,lng:-111.8266, d:"12. 6."},
+  {name:"Hopi Point",           lat:36.0717, lng:-112.1560, d:"12. 6. — západ slnka"},
+  {name:"South Kaibab Trailhead",lat:36.0531,lng:-112.0836, d:"13. 6. — Ooh Aah Point za úsvitu"},
   {name:"Hoover Dam",           lat:36.0161, lng:-114.7377, d:"13. 6."}
 ];
 
-const GUMP = [37.1014,-109.9908];
+const MV_SIGHTS = [
+  {name:"Monument Valley Valley Drive", lat:36.9900, lng:-110.1000, d:"12. 6. — 27 km prašná okružná cesta"},
+  {name:"Forrest Gump Point",   lat:37.1014, lng:-109.9908, d:"13. 6. ráno — US-163, severne od míľnika 13", gump:true}
+];
 
-/* ---------- úseky jazdy ---------- */
+/* --- úseky --- */
 const LEGS = [
-  {d:"30. 5.", label:"San Francisco → Oakhurst", hrs:"~4 h", km:300, mi:186, pts:[
+  {d:"30. 5.", label:"San Francisco → Oakhurst", hrs:"~3,5–4 h", km:315, mi:196, pts:[
     [37.7749,-122.4194],[37.6688,-121.7680],[37.6391,-120.9969],[37.3022,-120.4830],
     [36.9613,-120.0607],[37.3272,-119.6479]]},
-  {d:"2. 6.", label:"Oakhurst → Tioga Road → Reno", hrs:"~6 h", km:410, mi:255, pts:[
+  {d:"2. 6.", label:"Oakhurst → Tioga Road → Reno", hrs:"~5,5–6 h", km:400, mi:249, pts:[
     [37.3272,-119.6479],[37.5110,-119.6330],[37.7456,-119.5936],[37.9106,-119.2578],
     [37.9580,-119.1210],[38.2557,-119.2291],[39.1638,-119.7674],[39.5296,-119.8138]]},
-  {d:"3. 6.", label:"Reno → Twin Falls", hrs:"~6,5 h", km:690, mi:429, pts:[
+  {d:"3. 6.", label:"Reno → Twin Falls", hrs:"~7 h", km:730, mi:454, pts:[
     [39.5296,-119.8138],[39.6080,-119.2520],[40.9730,-117.7357],[40.8324,-115.7631],
     [41.1119,-114.9650],[41.9830,-114.6660],[42.5558,-114.4701]]},
   {d:"4. 6.", label:"Twin Falls → West Yellowstone", hrs:"~4,5 h", km:435, mi:270, pts:[
     [42.5558,-114.4701],[42.5357,-113.7928],[42.8713,-112.4455],[43.4917,-112.0339],
     [44.0710,-111.4480],[44.6621,-111.1041]]},
-  {d:"7. 6.", label:"Yellowstone → Grand Teton → Jackson", hrs:"~4 h", km:260, mi:162, pts:[
+  {d:"7. 6.", label:"Yellowstone → Grand Teton → Jackson", hrs:"~4 h", km:230, mi:143, pts:[
     [44.6621,-111.1041],[44.6450,-110.8600],[44.4605,-110.8281],[44.4160,-110.5730],
     [44.1350,-110.6660],[43.8600,-110.5900],[43.7522,-110.7266],[43.6591,-110.7170],
     [43.4799,-110.7624]]},
   {d:"8. 6.", label:"Jackson → Salt Lake City", hrs:"~5 h", km:440, mi:273, pts:[
     [43.4799,-110.7624],[43.1740,-111.0280],[42.3222,-111.2966],[41.7355,-111.8344],
     [41.2230,-111.9738],[40.7608,-111.8910]]},
-  {d:"9. 6.", label:"Salt Lake City → Bryce Canyon", hrs:"~4 h", km:430, mi:267, pts:[
+  {d:"9. 6.", label:"Salt Lake City → vyhliadky Bryce → Zion", hrs:"~6 h", km:570, mi:354, pts:[
     [40.7608,-111.8910],[40.2338,-111.6585],[39.7100,-111.8360],[38.2775,-112.6411],
-    [37.8222,-112.4361],[37.6716,-112.1568]]},
-  {d:"10. 6.", label:"Bryce → Zion", hrs:"~2 h", km:140, mi:87, pts:[
-    [37.6716,-112.1568],[37.2216,-112.6819],[37.2300,-112.8600],[37.1889,-112.9983]]},
-  {d:"11. 6.", label:"Zion → Page", hrs:"~2 h", km:190, mi:118, pts:[
+    [37.8222,-112.4361],[37.6716,-112.1568],[37.5930,-112.1871],[37.6716,-112.1568],
+    [37.2216,-112.6819],[37.2300,-112.8600],[37.1889,-112.9983]]},
+  {d:"11. 6.", label:"Zion → Page", hrs:"~2,5 h", km:190, mi:118, pts:[
     [37.1889,-112.9983],[37.2216,-112.6819],[37.0475,-112.5263],[36.9147,-111.4558]]},
-  {d:"12. 6.", label:"Page → Monument Valley → Grand Canyon", hrs:"~6,5 h", km:540, mi:336, pts:[
-    [36.9147,-111.4558],[36.5930,-111.0730],[36.7272,-110.2540],[36.9830,-110.1130],
-    [37.1014,-109.9908],[36.9830,-110.1130],[36.7272,-110.2540],[36.1350,-111.2400],
-    [35.8775,-111.4116],[36.0416,-111.8266],[36.0544,-112.1401]]},
-  {d:"13. 6.", label:"Grand Canyon → Las Vegas", hrs:"~4,5 h", km:450, mi:280, pts:[
+  {d:"13. 6.", label:"Grand Canyon → Las Vegas", hrs:"~4,5 h", km:455, mi:283, pts:[
     [36.0544,-112.1401],[35.2494,-112.1910],[35.3258,-112.8746],[35.1894,-114.0530],
     [36.0161,-114.7377],[36.1699,-115.1398]]},
-  {d:"15. 6.", label:"Las Vegas → Los Angeles", hrs:"~4,5 h", km:435, mi:270, pts:[
+  {d:"15. 6.", label:"Las Vegas → Los Angeles", hrs:"~4,5–5 h", km:435, mi:270, pts:[
     [36.1699,-115.1398],[35.6100,-115.3900],[35.2639,-116.0731],[34.8958,-117.0173],
     [34.5362,-117.2928],[34.1083,-117.2898],[34.0522,-118.2437]]}
 ];
 
-/* Route 66 — len orientačne, jemne sivá */
+/* priamy úsek, ktorý variant s MV nahrádza */
+const LEG_DIRECT = {d:"12. 6.", label:"Page → Grand Canyon", hrs:"~2,5 h", km:215, mi:134, pts:[
+  [36.9147,-111.4558],[36.7500,-111.6000],[35.8775,-111.4116],[36.0416,-111.8266],[36.0544,-112.1401]]};
+
+/* úseky variantu s Monument Valley */
+const LEGS_MV = [
+  {d:"12. 6.", label:"Page → Monument Valley", hrs:"~2 h", km:200, mi:124, pts:[
+    [36.9147,-111.4558],[36.5930,-111.0730],[36.7272,-110.2540],[36.9830,-110.1130]]},
+  {d:"13. 6.", label:"Monument Valley → Grand Canyon", hrs:"~3,5 h", km:330, mi:205, pts:[
+    [36.9830,-110.1130],[37.1014,-109.9908],[36.9830,-110.1130],[36.7272,-110.2540],
+    [36.1350,-111.2400],[35.8775,-111.4116],[36.0416,-111.8266],[36.0544,-112.1401]]}
+];
+
 const R66 = [
   [41.879,-87.624],[41.525,-88.082],[40.484,-88.994],[39.782,-89.650],[39.176,-89.654],
   [38.627,-90.199],[37.951,-91.771],[37.681,-92.664],[37.209,-93.292],[37.084,-94.513],
@@ -224,7 +256,7 @@ const STATES = [
   ["CO",39.00,-105.55],["NM",34.40,-106.10]
 ];
 
-/* ---------- mapa ---------- */
+/* ================= mapa ================= */
 const map = L.map('map').setView([39.5,-114.5],5);
 const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
   {maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
@@ -235,58 +267,85 @@ const topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
 L.control.layers({"Mapa":osm,"Satelit":sat,"Terén":topo},null,{position:'topright'}).addTo(map);
 L.control.scale({metric:true,imperial:true}).addTo(map);
 
-const routeLayer=L.layerGroup().addTo(map), r66Layer=L.layerGroup().addTo(map),
+const routeLayer=L.layerGroup().addTo(map), directLayer=L.layerGroup().addTo(map),
+      mvLayer=L.layerGroup(), r66Layer=L.layerGroup().addTo(map),
       parkLayer=L.layerGroup().addTo(map), sightLayer=L.layerGroup().addTo(map),
       nightLayer=L.layerGroup().addTo(map), stateLayer=L.layerGroup().addTo(map);
 
-function lbl(m,text,cls,off){m.bindTooltip(text,{permanent:true,direction:'right',className:'lbl '+cls,offset:[off,0],opacity:1});}
+function lbl(m,text,cls,off){
+  m.bindTooltip(text,{permanent:true,direction:'right',className:'lbl '+cls,offset:[off,0],opacity:1});
+}
 
-L.polyline(R66,{color:'#9a958c',weight:3,opacity:.5}).addTo(r66Layer)
+function drawLeg(leg,layer,isMv){
+  const line=L.polyline(leg.pts,{color:isMv?'#7a5230':'#a4432a',weight:4.5,opacity:.9,
+    dashArray:isMv?'12 6':null})
+    .bindPopup(`<b>${leg.label}</b><div class="meta">${leg.d} · ${leg.hrs} · ${leg.km} km / ${leg.mi} mi</div>`)
+    .addTo(layer);
+  if(!isMv) L.polyline(leg.pts,{color:'#fff',weight:1.5,opacity:.65,dashArray:'7 11'}).addTo(layer);
+  line.bindTooltip(`${leg.hrs}<span class="dist">${leg.km} km / ${leg.mi} mi</span>`,
+    {permanent:true,direction:'center',className:'leg-badge'+(isMv?' mv':''),opacity:1});
+}
+
+L.polyline(R66,{color:'#55504a',weight:3.5,opacity:.75}).addTo(r66Layer)
   .bindPopup('<b>Route 66</b><div class="meta">Chicago → Santa Monica, ~3 940 km / 2 448 mi</div>');
 
-let totalKm=0,totalMi=0;
-LEGS.forEach(leg=>{
-  totalKm+=leg.km; totalMi+=leg.mi;
-  const line=L.polyline(leg.pts,{color:'#a4432a',weight:4.5,opacity:.9})
-    .bindPopup(`<b>${leg.label}</b><div class="meta">${leg.d} · ${leg.hrs} · ${leg.km} km / ${leg.mi} mi</div>`)
-    .addTo(routeLayer);
-  L.polyline(leg.pts,{color:'#fff',weight:1.5,opacity:.65,dashArray:'7 11'}).addTo(routeLayer);
-  line.bindTooltip(`${leg.hrs}<span class="dist">${leg.km} km / ${leg.mi} mi</span>`,
-    {permanent:true,direction:'center',className:'leg-badge',opacity:1});
-});
-document.getElementById('total').textContent =
-  `Spolu ${totalKm.toLocaleString('sk-SK')} km / ${totalMi.toLocaleString('sk-SK')} mi medzi zastávkami, plus jazda v parkoch.`;
+LEGS.forEach(l=>drawLeg(l,routeLayer,false));
+drawLeg(LEG_DIRECT,directLayer,false);
+LEGS_MV.forEach(l=>drawLeg(l,mvLayer,true));
 
-const nightMarkers={};
+const BASE_KM = LEGS.reduce((a,l)=>a+l.km,0)+LEG_DIRECT.km;
+const BASE_MI = LEGS.reduce((a,l)=>a+l.mi,0)+LEG_DIRECT.mi;
+const MV_KM = LEGS.reduce((a,l)=>a+l.km,0)+LEGS_MV.reduce((a,l)=>a+l.km,0);
+const MV_MI = LEGS.reduce((a,l)=>a+l.mi,0)+LEGS_MV.reduce((a,l)=>a+l.mi,0);
+
+/* nocľahy */
+const nightMarkers=[]; let vegasIdx=-1;
 NIGHTS.forEach((s,i)=>{
+  if(s.vegas) vegasIdx=i;
   const m=L.marker([s.lat,s.lng],{
     icon:L.divIcon({className:'',html:`<div class="night">${s.n}</div>`,iconSize:[24,24],iconAnchor:[12,12]}),
-    zIndexOffset:900})
-    .bindPopup(`<b>${s.name}</b><div class="meta">${s.dates} · ${s.n} ${s.n===1?'noc':'noci'}</div>${s.note?`<div style="margin-top:7px">${s.note}</div>`:''}`)
-    .addTo(nightLayer);
+    zIndexOffset:900}).addTo(nightLayer);
   lbl(m,`${s.name} · ${s.n} ${s.n===1?'noc':'noci'}`,'l-night',14);
-  nightMarkers[i]=m;
+  nightMarkers.push(m);
 });
 
+const mvMarker=L.marker([MV_NIGHT.lat,MV_NIGHT.lng],{
+  icon:L.divIcon({className:'',html:`<div class="night mv">1</div>`,iconSize:[24,24],iconAnchor:[12,12]}),
+  zIndexOffset:950})
+  .bindPopup(`<b>${MV_NIGHT.name}</b><div class="meta">${MV_NIGHT.dates} · 1 noc</div><div style="margin-top:7px">${MV_NIGHT.note}</div>`)
+  .addTo(mvLayer);
+lbl(mvMarker,'Monument Valley · 1 noc','l-mv',14);
+
+function refreshNightPopups(mv){
+  NIGHTS.forEach((s,i)=>{
+    const n     = (s.vegas && mv) ? 1 : s.n;
+    const dates = (s.vegas && mv) ? "14.–15. 6." : s.dates;
+    const m = nightMarkers[i];
+    m.setIcon(L.divIcon({className:'',html:`<div class="night">${n}</div>`,iconSize:[24,24],iconAnchor:[12,12]}));
+    m.bindPopup(`<b>${s.name}</b><div class="meta">${dates} · ${n} ${n===1?'noc':'noci'}</div>${s.note?`<div style="margin-top:7px">${s.note}</div>`:''}`);
+    m.setTooltipContent(`${s.name} · ${n} ${n===1?'noc':'noci'}`);
+  });
+}
+refreshNightPopups(false);
+
+/* parky a zastávky */
 PARKS.forEach(p=>{
   const m=L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html:'<div class="park-pin"></div>',iconSize:[14,14],iconAnchor:[7,7]})})
     .bindPopup(`<b>${p.name}</b><div class="meta">${p.d}</div>`).addTo(parkLayer);
   lbl(m,p.name,'l-park',9);
 });
-
 SIGHTS.forEach(p=>{
   const m=L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html:'<div class="sight-pin"></div>',iconSize:[11,11],iconAnchor:[5.5,5.5]})})
     .bindPopup(`<b>${p.name}</b><div class="meta">${p.d}</div>`).addTo(sightLayer);
   lbl(m,p.name,'l-sight',8);
 });
-
-const gump=L.marker(GUMP,{
-  icon:L.divIcon({className:'',html:'<div class="gump-pin">★</div>',iconSize:[14,14],iconAnchor:[7,7]}),
-  zIndexOffset:1000})
-  .bindPopup(`<b>Forrest Gump Point</b><div class="meta">US-163, severne od míľnika 13 · 12. 6.</div>
-    <div style="margin-top:7px">Fotiť len z krajnice, cesta je živá. Ráno svieti na butte, večer sú proti svetlu.</div>`)
-  .addTo(sightLayer);
-lbl(gump,'Forrest Gump Point','l-gump',9);
+MV_SIGHTS.forEach(p=>{
+  const html = p.gump ? '<div class="gump-pin">★</div>' : '<div class="sight-pin mv"></div>';
+  const size = p.gump ? 14 : 11;
+  const m=L.marker([p.lat,p.lng],{icon:L.divIcon({className:'',html,iconSize:[size,size],iconAnchor:[size/2,size/2]}),zIndexOffset:960})
+    .bindPopup(`<b>${p.name}</b><div class="meta">${p.d}</div>`).addTo(mvLayer);
+  lbl(m,p.name,'l-mv',9);
+});
 
 STATES.forEach(([a,lat,lng])=>{
   L.marker([lat,lng],{interactive:false,keyboard:false,
@@ -300,49 +359,89 @@ function gate(){const z=map.getZoom();
 map.on('zoomend',gate); gate();
 map.fitBounds(L.latLngBounds(NIGHTS.map(s=>[s.lat,s.lng])),{padding:[45,45]});
 
-/* ---------- itinerár ---------- */
-const ITIN=[
+/* ================= itinerár ================= */
+const COMMON_START=[
   {n:"27. 5.<br>št", t:"Prílet do San Francisca", s:"SFO 17:40, presun do mesta", bed:"San Francisco", go:0},
   {n:"28.–29. 5.", t:"San Francisco", s:"Golden Gate, Alcatraz, Fisherman's Wharf", bed:"San Francisco", go:0},
-  {n:"30. 5.<br>ne", t:"San Francisco → Oakhurst", s:"Vyzdvihnutie auta a presun k Yosemite", drive:"~4 h · 300 km / 186 mi", bed:"Oakhurst", go:1},
+  {n:"30. 5.<br>ne", t:"San Francisco → Oakhurst", s:"Vyzdvihnutie auta a presun k Yosemite", drive:"~3,5–4 h · 315 km / 196 mi", bed:"Oakhurst", go:1},
   {n:"31. 5.<br>po", t:"Yosemite Valley", s:"Tunnel View, vodopády, El Capitan", drive:"lokálne", park:1, bed:"Oakhurst", go:1},
   {n:"1. 6.<br>ut", t:"Glacier Point a Mariposa Grove", s:"Výhľady a sekvoje", drive:"lokálne", park:1, bed:"Oakhurst", go:1},
-  {n:"2. 6.<br>st", t:"Oakhurst → Reno", s:"Tioga Road, Tuolumne Meadows, Mono Lake", drive:"~6 h · 410 km / 255 mi", bed:"Reno", go:2},
-  {n:"3. 6.<br>št", t:"Reno → Twin Falls", s:"Nevada po I-80, večer Shoshone Falls", drive:"~6,5 h · 690 km / 429 mi", bed:"Twin Falls", go:3},
+  {n:"2. 6.<br>st", t:"Oakhurst → Reno", s:"Tioga Road, Tuolumne Meadows, Mono Lake", drive:"~5,5–6 h · 400 km / 249 mi", bed:"Reno", go:2},
+  {n:"3. 6.<br>št", t:"Reno → Twin Falls", s:"Nevada po I-80, večer Shoshone Falls", drive:"~7 h · 730 km / 454 mi", bed:"Twin Falls", go:3},
   {n:"4. 6.<br>pi", t:"Twin Falls → Yellowstone", s:"Príchod popoludní, prvé zastávky v parku", drive:"~4,5 h · 435 km / 270 mi", park:1, bed:"West Yellowstone", go:4},
   {n:"5. 6.<br>so", t:"Yellowstone — gejzíry", s:"Old Faithful, Grand Prismatic, Firehole", drive:"lokálne", park:1, bed:"West Yellowstone", go:4},
   {n:"6. 6.<br>ne", t:"Yellowstone — kaňon a zvieratá", s:"Grand Canyon of the Yellowstone, Lamar Valley za úsvitu", drive:"lokálne", park:1, bed:"West Yellowstone", go:4},
-  {n:"7. 6.<br>po", t:"Yellowstone → Grand Teton → Jackson", s:"Výjazd na juh celým Tetonom, Jenny Lake", drive:"~4 h · 260 km / 162 mi", park:1, bed:"Jackson", go:5},
+  {n:"7. 6.<br>po", t:"Yellowstone → Grand Teton → Jackson", s:"Výjazd na juh celým Tetonom, Jenny Lake", drive:"~4 h · 230 km / 143 mi", park:1, bed:"Jackson", go:5},
   {n:"8. 6.<br>ut", t:"Jackson → Salt Lake City", s:"Ráno Mormon Row, potom presun cez Bear Lake", drive:"~5 h · 440 km / 273 mi", bed:"Salt Lake City", go:6},
-  {n:"9. 6.<br>st", t:"Salt Lake City → Bryce Canyon", s:"Popoludní Bryce, Sunset Point", drive:"~4 h · 430 km / 267 mi", park:1, bed:"Bryce Canyon City", go:7},
-  {n:"10. 6.<br>št", t:"Bryce → Zion", s:"Ráno východ slnka v Bryce, popoludní Zion", drive:"~2 h · 140 km / 87 mi", park:1, bed:"Springdale", go:8},
-  {n:"11. 6.<br>pi", t:"Zion → Page", s:"Ráno Zion, popoludní Antelope Canyon a Horseshoe Bend", drive:"~2 h · 190 km / 118 mi", park:1, bed:"Page", go:9},
-  {n:"12. 6.<br>so", t:"Page → Monument Valley → Grand Canyon", s:"Forrest Gump Point, potom cez Kayentu a Cameron na South Rim", drive:"~6,5 h · 540 km / 336 mi", park:1, bed:"Grand Canyon Village", go:10},
-  {n:"13. 6.<br>ne", t:"Grand Canyon → Las Vegas", s:"Ráno South Rim, cestou Hoover Dam", drive:"~4,5 h · 450 km / 280 mi", bed:"Las Vegas", go:11},
-  {n:"14. 6.<br>po", t:"Las Vegas", s:"Celý deň a večer", bed:"Las Vegas", go:11},
-  {n:"15. 6.<br>ut", t:"Las Vegas → Los Angeles", s:"Presun cez Mojave", drive:"~4,5 h · 435 km / 270 mi", bed:"Los Angeles", go:12},
-  {n:"16. 6.<br>st", t:"Los Angeles", s:"Celý deň v meste", drive:"lokálne", bed:"Los Angeles", go:12},
-  {n:"17. 6.<br>št", t:"Odlet z LAX", s:"Celý deň v LA, na letisko okolo 18:00, odlet 20:55", go:12}
+  {n:"9. 6.<br>st", t:"SLC → vyhliadky Bryce → Zion", s:"Bryce Point a Sunset Point (~1,5 h), potom cez tunel do Zionu", drive:"~6 h · 570 km / 354 mi", park:1, bed:"Springdale", go:7},
+  {n:"10. 6.<br>št", t:"Zion — celý deň", s:"Scenic Drive, The Narrows, Emerald Pools, Watchman", drive:"lokálne", park:1, bed:"Springdale", go:7},
+  {n:"11. 6.<br>pi", t:"Zion → Page", s:"Odchod 7:30. Antelope Canyon o 11:00, Horseshoe Bend na západ slnka", drive:"~2,5 h · 190 km / 118 mi", bed:"Page", go:8}
+];
+
+const ITIN_BASE=[...COMMON_START,
+  {n:"12. 6.<br>so", t:"Page → Grand Canyon", s:"Desert View okolo poludnia, popoludní Rim Trail, západ slnka na Hopi Point", drive:"~2,5 h · 215 km / 134 mi", park:1, bed:"Grand Canyon Village", go:9},
+  {n:"13. 6.<br>ne", t:"Grand Canyon → Las Vegas", s:"Východ slnka, South Kaibab k Ooh Aah Pointu, cestou Hoover Dam", drive:"~4,5 h · 455 km / 283 mi", park:1, bed:"Las Vegas", go:10},
+  {n:"14. 6.<br>po", t:"Las Vegas", s:"Celý deň a večer — jediný deň bez balenia", bed:"Las Vegas", go:10},
+  {n:"15. 6.<br>ut", t:"Las Vegas → Los Angeles", s:"Presun cez Mojave", drive:"~4,5–5 h · 435 km / 270 mi", bed:"Los Angeles", go:11},
+  {n:"16. 6.<br>st", t:"Los Angeles", s:"Celý deň v meste", drive:"lokálne", bed:"Los Angeles", go:11},
+  {n:"17. 6.<br>št", t:"Odlet z LAX", s:"Celý deň v LA, na letisko okolo 18:00, odlet 20:55", go:11}
+];
+
+const ITIN_MV=[...COMMON_START,
+  {n:"12. 6.<br>so", t:"Page → Monument Valley", s:"Odchod po raňajkách, Valley Drive popoludní, západ slnka nad Mittens", drive:"~2 h · 200 km / 124 mi", alt:1, bed:"Monument Valley", go:"mv"},
+  {n:"13. 6.<br>ne", t:"Monument Valley → Grand Canyon", s:"Východ slnka, Forrest Gump Point, cez Kayentu a Cameron na South Rim", drive:"~3,5 h · 330 km / 205 mi", alt:1, park:1, bed:"Grand Canyon Village", go:9},
+  {n:"14. 6.<br>po", t:"Grand Canyon → Las Vegas", s:"Východ slnka, South Kaibab, cestou Hoover Dam", drive:"~4,5 h · 455 km / 283 mi", park:1, bed:"Las Vegas", go:10},
+  {n:"15. 6.<br>ut", t:"Las Vegas → Los Angeles", s:"Dopoludnia Vegas, potom presun cez Mojave", drive:"~4,5–5 h · 435 km / 270 mi", bed:"Los Angeles", go:11},
+  {n:"16. 6.<br>st", t:"Los Angeles", s:"Celý deň v meste", drive:"lokálne", bed:"Los Angeles", go:11},
+  {n:"17. 6.<br>št", t:"Odlet z LAX", s:"Celý deň v LA, na letisko okolo 18:00, odlet 20:55", go:11}
 ];
 
 const box=document.getElementById('days');
-ITIN.forEach(x=>{
-  const el=document.createElement('div');
-  el.className='day'+(x.park?' is-park':'');
-  el.innerHTML=`<div class="n">${x.n}</div><div class="b"><div class="t">${x.t}</div>
-    <div class="s">${x.s}</div>${x.drive?`<div class="drive">${x.drive}</div>`:''}
-    ${x.bed?`<div class="bed">Nocľah: ${x.bed}</div>`:''}</div>`;
-  el.onclick=()=>{const m=nightMarkers[x.go];map.flyTo(m.getLatLng(),8,{duration:1});
-    setTimeout(()=>m.openPopup(),1050);};
-  box.appendChild(el);
-});
+function renderItin(mv){
+  box.innerHTML='';
+  (mv?ITIN_MV:ITIN_BASE).forEach(x=>{
+    const el=document.createElement('div');
+    el.className='day'+(x.park?' is-park':'')+(x.alt?' alt':'');
+    el.innerHTML=`<div class="n">${x.n}</div><div class="b"><div class="t">${x.t}</div>
+      <div class="s">${x.s}</div>${x.drive?`<div class="drive">${x.drive}</div>`:''}
+      ${x.bed?`<div class="bed">Nocľah: ${x.bed}</div>`:''}</div>`;
+    el.onclick=()=>{
+      const m = x.go==='mv' ? mvMarker : nightMarkers[x.go];
+      map.flyTo(m.getLatLng(),8,{duration:1});
+      setTimeout(()=>m.openPopup(),1050);
+    };
+    box.appendChild(el);
+  });
+}
 
-function bind(id,layer){document.getElementById(id).addEventListener('change',e=>{
-  e.target.checked?map.addLayer(layer):map.removeLayer(layer);});}
-bind('t-route',routeLayer); bind('t-r66',r66Layer); bind('t-parks',parkLayer);
+const totalEl=document.getElementById('total');
+function setTotal(mv){
+  const km=mv?MV_KM:BASE_KM, mi=mv?MV_MI:BASE_MI;
+  totalEl.textContent=`Spolu ${km.toLocaleString('sk-SK')} km / ${mi.toLocaleString('sk-SK')} mi medzi zastávkami, plus jazda v parkoch.`;
+}
+
+function setMv(on){
+  if(on){ map.removeLayer(directLayer); map.addLayer(mvLayer); }
+  else   { map.removeLayer(mvLayer); if(document.getElementById('t-route').checked) map.addLayer(directLayer); }
+  refreshNightPopups(on);
+  renderItin(on);
+  setTotal(on);
+}
+setMv(false);
+
+/* prepínače */
+function bind(id,...layers){document.getElementById(id).addEventListener('change',e=>{
+  layers.forEach(l=>e.target.checked?map.addLayer(l):map.removeLayer(l));});}
+document.getElementById('t-route').addEventListener('change',e=>{
+  const mv=document.getElementById('t-mv').checked;
+  if(e.target.checked){ map.addLayer(routeLayer); if(!mv) map.addLayer(directLayer); }
+  else { map.removeLayer(routeLayer); map.removeLayer(directLayer); }
+});
+bind('t-r66',r66Layer); bind('t-parks',parkLayer);
 bind('t-sights',sightLayer); bind('t-states',stateLayer);
 document.getElementById('t-labels').addEventListener('change',e=>{
   mapEl.classList.toggle('hide-labels',!e.target.checked);});
 document.getElementById('t-legs').addEventListener('change',e=>{
   mapEl.classList.toggle('hide-legbadges',!e.target.checked);});
+document.getElementById('t-mv').addEventListener('change',e=>setMv(e.target.checked));
 </script>
