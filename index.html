@@ -139,7 +139,7 @@ const NIGHTS = [
   {dates:"30. 5.–2. 6.", name:"Oakhurst (Yosemite)",  lat:37.3272, lng:-119.6479, n:3, note:"Rezervované. Do Yosemite Valley ~1 h."},
   {dates:"2.–3. 6.",     name:"Reno, NV",             lat:39.5296, lng:-119.8138, n:1, note:"Po prejazde Tioga Road a Mono Lake"},
   {dates:"3.–4. 6.",     name:"Twin Falls, ID",       lat:42.5558, lng:-114.4701, n:1, note:"Shoshone Falls hneď pri meste"},
-  {dates:"4.–7. 6.",     name:"West Yellowstone",     lat:44.6621, lng:-111.1041, n:3, note:"Ideálne nahradiť ubytovaním v parku (Canyon Village) — rezervácia 13 mesiacov vopred"},
+  {dates:"4.–7. 6.",     name:"Gardiner, MT",         lat:45.0300, lng:-110.7028, n:3, note:"Tiny Yellowstone Riverside Cabin, 10 East Park Street. Check-in 16:00–22:00, check-out do 11:00. Severná brána parku, Roosevelt Arch je pár sto metrov."},
   {dates:"7.–8. 6.",     name:"Jackson, WY",          lat:43.4799, lng:-110.7624, n:1, note:"Po prejazde celým Grand Tetonom"},
   {dates:"8.–9. 6.",     name:"Salt Lake City",       lat:40.7608, lng:-111.8910, n:1, note:"Jediná noc v SLC"},
   {dates:"9.–11. 6.",    name:"Springdale (Zion)",    lat:37.1889, lng:-112.9983, n:2, note:"Dve noci — 10. 6. celý deň v Zione"},
@@ -168,10 +168,14 @@ const SIGHTS = [
   {name:"Tioga Pass",           lat:37.9106, lng:-119.2578, d:"2. 6. — overiť, či je otvorená"},
   {name:"Mono Lake",            lat:37.9925, lng:-119.0088, d:"2. 6."},
   {name:"Shoshone Falls",       lat:42.5947, lng:-114.4008, d:"3. 6."},
-  {name:"Old Faithful",         lat:44.4605, lng:-110.8281, d:"5. 6."},
-  {name:"Grand Prismatic",      lat:44.5251, lng:-110.8382, d:"5. 6."},
+  {name:"Roosevelt Arch",       lat:45.0280, lng:-110.7083, d:"4. 6. — pri ubytovaní"},
+  {name:"Mammoth Hot Springs",  lat:44.9766, lng:-110.7036, d:"4.–5. 6. — 10 min od chaty"},
+  {name:"Norris Geyser Basin",  lat:44.7263, lng:-110.7030, d:"4. 6. — cestou do Gardineru"},
+  {name:"Tower Fall",           lat:44.8936, lng:-110.3870, d:"5. 6."},
+  {name:"Old Faithful",         lat:44.4605, lng:-110.8281, d:"6. 6. — 2 h jazdy z Gardineru"},
+  {name:"Grand Prismatic",      lat:44.5251, lng:-110.8382, d:"6. 6."},
   {name:"Grand Canyon of the Yellowstone", lat:44.7202, lng:-110.4965, d:"6. 6."},
-  {name:"Lamar Valley",         lat:44.8975, lng:-110.2200, d:"6. 6. — zvieratá za úsvitu"},
+  {name:"Lamar Valley",         lat:44.8975, lng:-110.2200, d:"5. 6. — hodina od chaty, zvieratá za úsvitu"},
   {name:"Jenny Lake",           lat:43.7522, lng:-110.7266, d:"7. 6."},
   {name:"Mormon Row",           lat:43.6650, lng:-110.6630, d:"7.–8. 6."},
   {name:"Bryce Point",          lat:37.6043, lng:-112.1570, d:"9. 6. — krátka zastávka"},
@@ -183,7 +187,10 @@ const SIGHTS = [
   {name:"Desert View Watchtower",lat:36.0416,lng:-111.8266, d:"12. 6."},
   {name:"Hopi Point",           lat:36.0717, lng:-112.1560, d:"12. 6. — západ slnka"},
   {name:"South Kaibab Trailhead",lat:36.0531,lng:-112.0836, d:"13. 6. — Ooh Aah Point za úsvitu"},
-  {name:"Hoover Dam",           lat:36.0161, lng:-114.7377, d:"13. 6."}
+  {name:"Seligman",            lat:35.3258, lng:-112.8746, d:"13. 6. — začiatok historickej Route 66"},
+  {name:"Sitgreaves Pass",      lat:35.0600, lng:-114.3200, d:"13. 6. — serpentíny starej 66, nie pre karavany"},
+  {name:"Oatman, AZ",           lat:35.0264, lng:-114.3836, d:"13. 6. — divé somáre na hlavnej ulici"},
+  {name:"Hoover Dam",           lat:36.0161, lng:-114.7377, d:"14. 6. — ako výlet z Las Vegas (45 min)"}
 ];
 
 const MV_SIGHTS = [
@@ -202,13 +209,14 @@ const LEGS = [
   {d:"3. 6.", label:"Reno → Twin Falls", hrs:"~7 h", km:730, mi:454, pts:[
     [39.5296,-119.8138],[39.6080,-119.2520],[40.9730,-117.7357],[40.8324,-115.7631],
     [41.1119,-114.9650],[41.9830,-114.6660],[42.5558,-114.4701]]},
-  {d:"4. 6.", label:"Twin Falls → West Yellowstone", hrs:"~4,5 h", km:435, mi:270, pts:[
+  {d:"4. 6.", label:"Twin Falls → cez park → Gardiner", hrs:"~6 h", km:525, mi:326, pts:[
     [42.5558,-114.4701],[42.5357,-113.7928],[42.8713,-112.4455],[43.4917,-112.0339],
-    [44.0710,-111.4480],[44.6621,-111.1041]]},
-  {d:"7. 6.", label:"Yellowstone → Grand Teton → Jackson", hrs:"~4 h", km:230, mi:143, pts:[
-    [44.6621,-111.1041],[44.6450,-110.8600],[44.4605,-110.8281],[44.4160,-110.5730],
-    [44.1350,-110.6660],[43.8600,-110.5900],[43.7522,-110.7266],[43.6591,-110.7170],
-    [43.4799,-110.7624]]},
+    [44.0710,-111.4480],[44.6621,-111.1041],[44.6450,-110.8600],[44.7263,-110.6983],
+    [44.9766,-110.7036],[45.0300,-110.7028]]},
+  {d:"7. 6.", label:"Gardiner → celý park → Grand Teton → Jackson", hrs:"~5 h", km:260, mi:162, pts:[
+    [45.0300,-110.7028],[44.9766,-110.7036],[44.7263,-110.6983],[44.6450,-110.8600],
+    [44.4605,-110.8281],[44.4160,-110.5730],[44.1350,-110.6660],[43.8600,-110.5900],
+    [43.7522,-110.7266],[43.6591,-110.7170],[43.4799,-110.7624]]},
   {d:"8. 6.", label:"Jackson → Salt Lake City", hrs:"~5 h", km:440, mi:273, pts:[
     [43.4799,-110.7624],[43.1740,-111.0280],[42.3222,-111.2966],[41.7355,-111.8344],
     [41.2230,-111.9738],[40.7608,-111.8910]]},
@@ -218,9 +226,10 @@ const LEGS = [
     [37.2216,-112.6819],[37.2300,-112.8600],[37.1889,-112.9983]]},
   {d:"11. 6.", label:"Zion → Page", hrs:"~2,5 h", km:190, mi:118, pts:[
     [37.1889,-112.9983],[37.2216,-112.6819],[37.0475,-112.5263],[36.9147,-111.4558]]},
-  {d:"13. 6.", label:"Grand Canyon → Las Vegas", hrs:"~4,5 h", km:455, mi:283, pts:[
-    [36.0544,-112.1401],[35.2494,-112.1910],[35.3258,-112.8746],[35.1894,-114.0530],
-    [36.0161,-114.7377],[36.1699,-115.1398]]},
+  {d:"13. 6.", label:"Grand Canyon → Oatman → Las Vegas", hrs:"~5,5–6 h", km:520, mi:323, pts:[
+    [36.0544,-112.1401],[35.2494,-112.1910],[35.3258,-112.8746],[35.4175,-113.7217],
+    [35.1894,-114.0530],[35.0264,-114.3836],[35.1478,-114.5683],[35.4661,-114.9190],
+    [36.1699,-115.1398]]},
   {d:"15. 6.", label:"Las Vegas → Los Angeles", hrs:"~4,5–5 h", km:435, mi:270, pts:[
     [36.1699,-115.1398],[35.6100,-115.3900],[35.2639,-116.0731],[34.8958,-117.0173],
     [34.5362,-117.2928],[34.1083,-117.2898],[34.0522,-118.2437]]}
@@ -368,10 +377,10 @@ const COMMON_START=[
   {n:"1. 6.<br>ut", t:"Glacier Point a Mariposa Grove", s:"Výhľady a sekvoje", drive:"lokálne", park:1, bed:"Oakhurst", go:1},
   {n:"2. 6.<br>st", t:"Oakhurst → Reno", s:"Tioga Road, Tuolumne Meadows, Mono Lake", drive:"~5,5–6 h · 400 km / 249 mi", bed:"Reno", go:2},
   {n:"3. 6.<br>št", t:"Reno → Twin Falls", s:"Nevada po I-80, večer Shoshone Falls", drive:"~7 h · 730 km / 454 mi", bed:"Twin Falls", go:3},
-  {n:"4. 6.<br>pi", t:"Twin Falls → Yellowstone", s:"Príchod popoludní, prvé zastávky v parku", drive:"~4,5 h · 435 km / 270 mi", park:1, bed:"West Yellowstone", go:4},
-  {n:"5. 6.<br>so", t:"Yellowstone — gejzíry", s:"Old Faithful, Grand Prismatic, Firehole", drive:"lokálne", park:1, bed:"West Yellowstone", go:4},
-  {n:"6. 6.<br>ne", t:"Yellowstone — kaňon a zvieratá", s:"Grand Canyon of the Yellowstone, Lamar Valley za úsvitu", drive:"lokálne", park:1, bed:"West Yellowstone", go:4},
-  {n:"7. 6.<br>po", t:"Yellowstone → Grand Teton → Jackson", s:"Výjazd na juh celým Tetonom, Jenny Lake", drive:"~4 h · 230 km / 143 mi", park:1, bed:"Jackson", go:5},
+  {n:"4. 6.<br>pi", t:"Twin Falls → cez park → Gardiner", s:"Vstup západnou bránou ~12:30, Gibbon Falls, Norris, Mammoth; v chate okolo 17:00 (check-in 16:00–22:00)", drive:"~6 h · 525 km / 326 mi", park:1, bed:"Gardiner, MT", go:4},
+  {n:"5. 6.<br>so", t:"Yellowstone — sever", s:"Lamar Valley za úsvitu (1 h od chaty), Mammoth terasy, Tower Fall", drive:"lokálne ~150 km", park:1, bed:"Gardiner, MT", go:4},
+  {n:"6. 6.<br>ne", t:"Yellowstone — gejzíry a kaňon", s:"Celodenná okružná jazda: Canyon, Hayden Valley, Old Faithful, Grand Prismatic", drive:"lokálne ~300 km", park:1, bed:"Gardiner, MT", go:4},
+  {n:"7. 6.<br>po", t:"Gardiner → celý park → Grand Teton → Jackson", s:"Prejazd parkom zo severu na juh, potom Teton a Jenny Lake", drive:"~5 h · 260 km / 162 mi", park:1, bed:"Jackson", go:5},
   {n:"8. 6.<br>ut", t:"Jackson → Salt Lake City", s:"Ráno Mormon Row, potom presun cez Bear Lake", drive:"~5 h · 440 km / 273 mi", bed:"Salt Lake City", go:6},
   {n:"9. 6.<br>st", t:"SLC → vyhliadky Bryce → Zion", s:"Bryce Point a Sunset Point (~1,5 h), potom cez tunel do Zionu", drive:"~6 h · 570 km / 354 mi", park:1, bed:"Springdale", go:7},
   {n:"10. 6.<br>št", t:"Zion — celý deň", s:"Scenic Drive, The Narrows, Emerald Pools, Watchman", drive:"lokálne", park:1, bed:"Springdale", go:7},
@@ -380,8 +389,8 @@ const COMMON_START=[
 
 const ITIN_BASE=[...COMMON_START,
   {n:"12. 6.<br>so", t:"Page → Grand Canyon", s:"Desert View okolo poludnia, popoludní Rim Trail, západ slnka na Hopi Point", drive:"~2,5 h · 215 km / 134 mi", park:1, bed:"Grand Canyon Village", go:9},
-  {n:"13. 6.<br>ne", t:"Grand Canyon → Las Vegas", s:"Východ slnka, South Kaibab k Ooh Aah Pointu, cestou Hoover Dam", drive:"~4,5 h · 455 km / 283 mi", park:1, bed:"Las Vegas", go:10},
-  {n:"14. 6.<br>po", t:"Las Vegas", s:"Celý deň a večer — jediný deň bez balenia", bed:"Las Vegas", go:10},
+  {n:"13. 6.<br>ne", t:"Grand Canyon → Oatman → Las Vegas", s:"Východ slnka, South Kaibab, potom stará 66 cez Seligman a Sitgreaves Pass do Oatmanu za somármi", drive:"~5,5–6 h · 520 km / 323 mi", park:1, bed:"Las Vegas", go:10},
+  {n:"14. 6.<br>po", t:"Las Vegas", s:"Voľný deň — ak chcete, Hoover Dam je 45 min od mesta", bed:"Las Vegas", go:10},
   {n:"15. 6.<br>ut", t:"Las Vegas → Los Angeles", s:"Presun cez Mojave", drive:"~4,5–5 h · 435 km / 270 mi", bed:"Los Angeles", go:11},
   {n:"16. 6.<br>st", t:"Los Angeles", s:"Celý deň v meste", drive:"lokálne", bed:"Los Angeles", go:11},
   {n:"17. 6.<br>št", t:"Odlet z LAX", s:"Celý deň v LA, na letisko okolo 18:00, odlet 20:55", go:11}
@@ -390,7 +399,7 @@ const ITIN_BASE=[...COMMON_START,
 const ITIN_MV=[...COMMON_START,
   {n:"12. 6.<br>so", t:"Page → Monument Valley", s:"Odchod po raňajkách, Valley Drive popoludní, západ slnka nad Mittens", drive:"~2 h · 200 km / 124 mi", alt:1, bed:"Monument Valley", go:"mv"},
   {n:"13. 6.<br>ne", t:"Monument Valley → Grand Canyon", s:"Východ slnka, Forrest Gump Point, cez Kayentu a Cameron na South Rim", drive:"~3,5 h · 330 km / 205 mi", alt:1, park:1, bed:"Grand Canyon Village", go:9},
-  {n:"14. 6.<br>po", t:"Grand Canyon → Las Vegas", s:"Východ slnka, South Kaibab, cestou Hoover Dam", drive:"~4,5 h · 455 km / 283 mi", park:1, bed:"Las Vegas", go:10},
+  {n:"14. 6.<br>po", t:"Grand Canyon → Oatman → Las Vegas", s:"Východ slnka, South Kaibab, potom stará 66 cez Sitgreaves Pass do Oatmanu za somármi", drive:"~5,5–6 h · 520 km / 323 mi", park:1, bed:"Las Vegas", go:10},
   {n:"15. 6.<br>ut", t:"Las Vegas → Los Angeles", s:"Dopoludnia Vegas, potom presun cez Mojave", drive:"~4,5–5 h · 435 km / 270 mi", bed:"Los Angeles", go:11},
   {n:"16. 6.<br>st", t:"Los Angeles", s:"Celý deň v meste", drive:"lokálne", bed:"Los Angeles", go:11},
   {n:"17. 6.<br>št", t:"Odlet z LAX", s:"Celý deň v LA, na letisko okolo 18:00, odlet 20:55", go:11}
